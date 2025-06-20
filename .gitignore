@@ -1,0 +1,29 @@
+logs/*
+
+# Build artifacts
+build/
+install/
+log/
+
+# Colcon metadata
+.colcon/
+.colcon_cache/
+
+# ROS 2 package-specific ignores
+**/CMakeLists.txt.user
+**/CMakeCache.txt
+**/cmake_install.cmake
+**/Makefile
+**/CMakeFiles/
+**/*.pyc
+
+# VSCode settings (if using VSCode)
+.vscode/
+
+# Python virtual environment
+venv/
+
+# Miscellaneous
+*.swp
+*.swo
+.DS_Store

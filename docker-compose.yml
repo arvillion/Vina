@@ -1,0 +1,52 @@
+services:
+  bridge:
+    build:
+      context: bridge
+      dockerfile: ros1-ros2-bridge.Dockerfile
+    container_name: bridge
+    network_mode: host
+    environment:
+      - ROS_MASTER_URI=http://169.254.128.2:11311
+    volumes:
+      - ./logs:/logs
+    command: >
+      /bin/bash -c 
+      "rosparam load /ros_bridge.yaml &&
+       ros2 run ros1_bridge parameter_bridge 2>&1 | tee /logs/bridge.log"
+  
+  adapter:
+    build:
+      context: adapter
+      dockerfile: Dockerfile
+    container_name: adapter
+    network_mode: host
+    volumes:
+      - ./adapter/ros2_ws:/ros2_ws
+      - ./logs:/logs
+    working_dir: /ros2_ws
+    command: >
+      /bin/bash -c 
+      "source /opt/ros/humble/setup.bash &&
+      colcon build --symlink-install &&
+      source install/setup.bash &&
+      ros2 launch adapter adapter.launch.py | tee /logs/adapter.log"
+
+  nav:
+    build:
+      context: nav
+      dockerfile: Dockerfile
+    container_name: nav
+    network_mode: host
+    volumes:
+      - ./maps:/maps
+      - ./logs:/logs
+      - ./nav/ros2_ws:/ros2_ws
+    working_dir: /ros2_ws
+    command: >
+      /bin/bash -c 
+      "source /opt/ros/humble/setup.bash &&
+      colcon build --symlink-install &&
+      source install/setup.bash &&
+      ros2 launch navi nav.launch.py map:=/maps/map_scanned_by_woosh/map.yaml use_sim_time:=false | tee /logs/nav.log"
+
+  
