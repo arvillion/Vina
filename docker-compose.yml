@@ -1,14 +1,13 @@
 services:
   bridge:
     build:
-      context: bridge
-      dockerfile: ros1-ros2-bridge.Dockerfile
+      dockerfile: containers/bridge/ros1-ros2-bridge.Dockerfile
     container_name: bridge
     network_mode: host
     environment:
       - ROS_MASTER_URI=http://169.254.128.2:11311
     volumes:
-      - ./logs:/logs
+      - ./logs/bridge:/logs
     command: >
       /bin/bash -c 
       "rosparam load /ros_bridge.yaml &&
@@ -16,31 +15,29 @@ services:
   
   adapter:
     build:
-      context: adapter
-      dockerfile: Dockerfile
+      dockerfile: containers/adapter/Dockerfile
     container_name: adapter
     network_mode: host
     volumes:
-      - ./adapter/ros2_ws:/ros2_ws
-      - ./logs:/logs
+      - ./containers/adapter/ros2_ws:/ros2_ws
+      - ./logs/adapter:/logs
     working_dir: /ros2_ws
     command: >
       /bin/bash -c 
       "source /opt/ros/humble/setup.bash &&
       colcon build --symlink-install &&
       source install/setup.bash &&
-      ros2 launch adapter adapter.launch.py | tee /logs/adapter.log"
+      ros2 launch adapter adapter.launch.py just_woosh_agent:=true | tee /logs/adapter.log"
 
   nav:
     build:
-      context: nav
-      dockerfile: Dockerfile
+      dockerfile: containers/nav/Dockerfile
     container_name: nav
     network_mode: host
     volumes:
-      - ./maps:/maps
-      - ./logs:/logs
-      - ./nav/ros2_ws:/ros2_ws
+      - ./resources/maps:/maps
+      - ./logs/nav:/logs
+      - ./containers/nav/ros2_ws:/ros2_ws
     working_dir: /ros2_ws
     command: >
       /bin/bash -c 
@@ -48,5 +45,24 @@ services:
       colcon build --symlink-install &&
       source install/setup.bash &&
       ros2 launch navi nav.launch.py map:=/maps/map_scanned_by_woosh/map.yaml use_sim_time:=false | tee /logs/nav.log"
+  
+  service:
+    build:
+      dockerfile: containers/service/Dockerfile
+    container_name: service
+    network_mode: host
+    volumes:
+      - ./resources/maps:/maps
+      - ./logs/service:/logs
+      - ./containers/service/ros2_ws:/ros2_ws
+    working_dir: /ros2_ws
+    environment:
+      - GPT_KEY=""
+    # command: >
+    #   tail -f /dev/null
+    command: >
+      /bin/bash -c
+      "source /opt/ros/humble/setup.bash &&
+      python3 src/run.py | tee /logs/service.log"
 
   

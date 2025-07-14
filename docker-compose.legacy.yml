@@ -1,0 +1,40 @@
+services:
+  
+  adapter:
+    build:
+      dockerfile: containers/adapter/Dockerfile
+    container_name: adapter
+    network_mode: host
+    volumes:
+      - ./containers/adapter/ros2_ws:/ros2_ws
+      - ./logs/adapter:/logs
+    working_dir: /ros2_ws
+    command: >
+      /bin/bash -c 
+      "source /opt/ros/humble/setup.bash &&
+      colcon build --symlink-install &&
+      source install/setup.bash &&
+      ros2 launch adapter adapter.launch.py just_woosh_agent:=true | tee /logs/adapter.log"
+
+  service:
+    build:
+      dockerfile: containers/service/Dockerfile
+    container_name: service
+    network_mode: host
+    depends_on:
+      - adapter
+    volumes:
+      - ./resources/maps:/maps
+      - ./logs/service:/logs
+      - ./containers/service/ros2_ws:/ros2_ws
+    working_dir: /ros2_ws
+    environment:
+      - GPT_KEY=""
+    command: >
+      /bin/bash -c
+      "source /opt/ros/humble/setup.bash &&
+      python3 src/run.py | tee /logs/service.log"
+    # command: >
+    #   tail -f /dev/null
+
+  

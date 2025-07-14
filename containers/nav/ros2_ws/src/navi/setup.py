@@ -26,6 +26,7 @@ setup(
         'console_scripts': [
             'nav_service = navi.nav_service:main',
             'goal_pose_to_nav = navi.goal_pose_to_nav:main',
+            'vision_nav_node = navi.vision_nav:main',
         ],
     },
 )

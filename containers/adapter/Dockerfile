@@ -32,10 +32,11 @@ RUN apt install -y ros-humble-foxglove-bridge
 RUN apt install -y ros-humble-geometry2 ros-humble-tf2-ros ros-humble-nav2-msgs ros-humble-map-msgs ros-humble-dwb-msgs ros-humble-bond
 
 # 安装woosh agent
-COPY ros-humble-woosh-robot-agent_0.0.1-0jammy_arm64.run /tmp/woosh-agent.run
-RUN chmod +x /tmp/woosh-agent.run && \
-    /tmp/woosh-agent.run && \
-    rm -rf /tmp/woosh-agent.run
+COPY ./resources/woosh_agent/ros-humble-woosh-robot-agent_0.0.2-0jammy_arm64.run /tmp/woosh-robot-agent.run
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends --no-install-suggests sudo 
+RUN chmod +x /tmp/woosh-robot-agent.run && \
+    cd /tmp && ./woosh-robot-agent.run && \
+    rm -f woosh-robot-agent.run
 
 
 
