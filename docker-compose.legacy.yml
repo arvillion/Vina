@@ -28,8 +28,6 @@ services:
       - ./logs/service:/logs
       - ./containers/service/ros2_ws:/ros2_ws
     working_dir: /ros2_ws
-    environment:
-      - GPT_KEY=""
     command: >
       /bin/bash -c
       "source /opt/ros/humble/setup.bash &&

@@ -57,7 +57,6 @@ services:
       - ./containers/service/ros2_ws:/ros2_ws
     working_dir: /ros2_ws
     environment:
-      - GPT_KEY=""
     # command: >
     #   tail -f /dev/null
     command: >
